@@ -13,7 +13,7 @@ class RequestCommand(Cmd):
         self.prompt = ">>> "
         
     def __getRequestEntrys(self, requestProject):
-        return self.__reqUrlReader.getRequestUrlEntrys(requestProject)
+        return self.__currentRequestProject.getRequestEntrys()
         
     def __getRequestProjects(self):
         return self.__reqUrlReader.getRequestProjects()
@@ -46,9 +46,11 @@ class RequestCommand(Cmd):
     def show_requests(self, limit):
         if self.__currentRequestProject is None:
             print "no project selected."
+            return
         
         try:
-            param = int(limit[0])
+            if not limit: param = 10
+            else:param = int(limit[0])
         except ValueError:
             print 'limit param error.'
             return

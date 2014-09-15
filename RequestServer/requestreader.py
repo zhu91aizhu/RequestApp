@@ -33,7 +33,7 @@ class RequestReader:
         else:
             return srcElement.get(attrName)
     
-    def getRequestUrls(self, projectElement):
+    def getRequestEntrys(self, projectElement):
         return projectElement.getiterator("requesturls/requesturl")
 		
     def __getChildrenElements(self, rootElement, elementName = "requesturl"):
