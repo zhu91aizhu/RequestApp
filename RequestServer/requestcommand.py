@@ -29,7 +29,7 @@ class RequestCommand(Cmd):
     def show_projects(self, params):
         if self.__requestProjects is None: return
         for index, requestProject in enumerate(self.__requestProjects):
-            print index + 1, "--->", requestProject.getName()
+            print index + 1, "--->", requestProject.getProjectName()
             
     def do_use(self, projectIndex):
         try:

@@ -9,6 +9,9 @@ class RequestProject:
     def getRequestEntrys(self):
         return self.__requestEntrys
         
+    def setRequestEntrys(self, requestEntrys):
+        self.__requestEntrys = requestEntrys
+        
     def getProjectHost(self):
         return self.__host
         

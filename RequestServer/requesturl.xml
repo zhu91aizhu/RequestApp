@@ -2,7 +2,7 @@
 <requestmanager>
     <projects>
         <project name="fashion" alias="尚货">
-            <host name="http://127.0.0.1"></host>
+            <host>http://127.0.0.1</host>
             <port>8080</port>
             
             <requesturls>
@@ -43,4 +43,4 @@
             </requesturls>
         </project>
     </projects>
-</request>
+</requestmanager>
