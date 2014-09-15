@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<requestmanager>
+    <projects>
+        <project name="fashion" alias="尚货">
+            <host name="http://127.0.0.1"></host>
+            <port>8080</port>
+            
+            <requesturls>
+                <requesturl name="手机端登录" url="http://127.0.0.1:8080/iuser!login.action">
+                    <params>
+                        <param>
+                            <paramname>uname</paramname>
+                            <paramdata>18201145249</paramdata>
+                        </param>
+                        <param>
+                            <paramname>upwd</paramname>
+                            <paramdata>111111</paramdata>
+                        </param>
+                    </params>
+                </requesturl>
+                
+                <requesturl name="获得最新商品">
+                    <url>http://127.0.0.1:8080/igoods!getGoodsListByClientWithNew.action</url>
+                    <params>
+                        <param>
+                            <paramname>bid</paramname>
+                            <paramdata>1</paramdata>
+                        </param>
+                        <param>
+                            <paramname>gtype</paramname>
+                            <paramdata>1</paramdata>
+                        </param>
+                    </params>
+                </requesturl>
+                
+                <requesturl name="获得配合条例">
+                    <url>http://127.0.0.1:8080/iinformation!getRegulationsByClient.action</url>
+                </requesturl>
+                
+                <requesturl name="获得企业详情">
+                    <url>http://127.0.0.1:8080/iinformation!getCompanyDetailByClient.action</url>
+                </requesturl>
+            </requesturls>
+        </project>
+    </projects>
+</request>
