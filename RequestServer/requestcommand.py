@@ -14,7 +14,7 @@ class RequestCommand(Cmd):
         self.__currentRequestProject = None
         self.prompt = ">>> "
         
-    def __getRequestEntrys(self, requestProject):
+    def __getRequestEntrys(self):
         return self.__currentRequestProject.getRequestEntrys()
         
     def __getRequestProjects(self):
@@ -90,14 +90,13 @@ class RequestCommand(Cmd):
                 if params_length == 1:
                     requests_limit = int(params[0])
                 if params_length == 2:
-                    first_request_index = int(params[0])
+                    first_request_index = int(params[0]) - 1
                     requests_limit = int(params[1])
         except ValueError:
             print "limit param error."
             return
-        requestEntrys = self.__getRequestEntrys(self.__currentRequestProject)[first_request_index,requests_limit]
+        requestEntrys = self.__getRequestEntrys()[first_request_index:first_request_index + requests_limit]
         for index, requestEntry in enumerate(requestEntrys):
-            if index >= requests_limit: break
             print index + 1, "--->", requestEntry.getName()
     
     def do_exit(self, param):
@@ -112,7 +111,7 @@ class RequestCommand(Cmd):
                 print "no project selected."
                 return
             reqIndex = int(requestIndex) - 1
-            requestEntrys = self.__getRequestEntrys(self.__currentRequestProject)
+            requestEntrys = self.__getRequestEntrys()
             url = requestEntrys[reqIndex].getUrl()
             params = urllib.urlencode({'data':json.dumps(requestEntrys[reqIndex].getParams())})
             req = urllib2.Request(url, params)
