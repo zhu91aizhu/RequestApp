@@ -104,6 +104,9 @@ class RequestCommand(Cmd):
         
     def do_quit(self, param):
         return True
+        
+    def do_EOF(self, params):
+        return True
     
     def do_req(self, requestIndex):
         try:
