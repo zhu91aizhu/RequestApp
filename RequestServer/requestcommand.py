@@ -77,21 +77,27 @@ class RequestCommand(Cmd):
         
     
     ################################################################################
-    def show_requests(self, limit):
+    def show_requests(self, params):
         '''显示当前项目下所有request'''
         if self.__currentRequestProject is None:
             print "no project selected."
             return
-        
+        first_request_index = 0
+        requests_limit = 10
         try:
-            if not limit: param = 10
-            else:param = int(limit[0])
+            if params:
+                params_length = len(params)
+                if params_length == 1:
+                    requests_limit = int(params[0])
+                if params_length == 2:
+                    first_request_index = int(params[0])
+                    requests_limit = int(params[1])
         except ValueError:
             print "limit param error."
             return
-        requestEntrys = self.__getRequestEntrys(self.__currentRequestProject)
+        requestEntrys = self.__getRequestEntrys(self.__currentRequestProject)[first_request_index,requests_limit]
         for index, requestEntry in enumerate(requestEntrys):
-            if index >= param: break
+            if index >= requests_limit: break
             print index + 1, "--->", requestEntry.getName()
     
     def do_exit(self, param):
