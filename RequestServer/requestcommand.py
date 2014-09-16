@@ -1,3 +1,5 @@
+#-*- coding:utf-8 -*-
+
 import urllib
 import urllib2
 import json
@@ -18,6 +20,28 @@ class RequestCommand(Cmd):
     def __getRequestProjects(self):
         return self.__reqUrlReader.getRequestProjects()
     
+    ################################################################################
+    def __use_project_index(self, project_index):
+        """以项目索引选择项目"""
+        try:
+            project_index = int(project_index) - 1
+            self.__currentRequestProject = self.__requestProjects[project_index]
+            print "use project ok"
+        except IndexError:
+            print "project index out arange."
+        except ValueError:
+            print "project param error."
+    
+    ################################################################################
+    def __use_project_name(self, project_name):
+        """以项目名称选择项目"""
+        for project in self.__requestProjects:
+            if project.getProjectName() == project_name:
+                self.__currentRequestProject = project
+                print "use project ok."
+                return
+        print "no project is name: %s" % project_name
+    
     def do_prompt(self, prompt):
         self.prompt = prompt
     
@@ -26,24 +50,35 @@ class RequestCommand(Cmd):
         func = getattr(self, "show_" + params[0])
         func(params[1:])
     
+    ################################################################################
     def show_projects(self, params):
+        '''显示所有项目'''
         if self.__requestProjects is None: return
         for index, requestProject in enumerate(self.__requestProjects):
-            print index + 1, "--->", requestProject.getProjectName()
-            
-    def do_use(self, projectIndex):
-        try:
-            projectIndex = int(projectIndex) - 1
-        except ValueError:
-            print "project param error."
-            
-        if projectIndex > len(self.__requestProjects) or projectIndex < 0:
-            print "project index out arange."
-        
-        self.__currentRequestProject = self.__requestProjects[projectIndex]
-        print "use project ok"
+            print "| Index: ", index + 1, " | Name: ", requestProject.getProjectName(), " | Alias: ", requestProject.getProjectAlias(), " |"
     
+    ################################################################################
+    def do_use(self, params):
+        '''选择request项目'''
+        params = params.split()
+        params_length = len(params)
+        if params_length == 0:
+            print "miss param."
+            return
+        if len(params) == 1:
+            self.__use_project_index(params[0])
+            return
+        if len(params) == 2:
+            if params[0] == "-i":
+                self.__use_project_index(params[1])
+                return
+            if params[0] == "-n":
+                self.__use_project_name(params[1])
+        
+    
+    ################################################################################
     def show_requests(self, limit):
+        '''显示当前项目下所有request'''
         if self.__currentRequestProject is None:
             print "no project selected."
             return
@@ -52,7 +87,7 @@ class RequestCommand(Cmd):
             if not limit: param = 10
             else:param = int(limit[0])
         except ValueError:
-            print 'limit param error.'
+            print "limit param error."
             return
         requestEntrys = self.__getRequestEntrys(self.__currentRequestProject)
         for index, requestEntry in enumerate(requestEntrys):
@@ -68,15 +103,16 @@ class RequestCommand(Cmd):
     def do_req(self, requestIndex):
         try:
             reqIndex = int(requestIndex) - 1
+            requestEntrys = self.__getRequestEntrys(self.__currentRequestProject)
+            url = requestEntrys[reqIndex].getUrl()
+            params = urllib.urlencode({'data':json.dumps(requestEntrys[reqIndex].getParams())})
+            req = urllib2.Request(url, params)
+            response = urllib2.urlopen(req)
+            result = unicode(response.read(),'utf-8')
+            print result
+        except IndexError:
+            print "req index error."
         except ValueError:
-            print 'limit param error.'
-            return
-            
-        requestEntrys = self.__getRequestEntrys(self.__currentRequestProject)
-        url = requestEntrys[reqIndex].getUrl()
-        params = urllib.urlencode({'data':json.dumps(requestEntrys[reqIndex].getParams())})
-        req = urllib2.Request(url, params)
-        response = urllib2.urlopen(req)
-        result = unicode(response.read(),'utf-8')
-        
-        print result
+            print "limit param error."
+        except urllib2.URLError:
+            print "cannot access url or url error."
