@@ -17,6 +17,7 @@ class RequestCommand(Cmd):
         self.__requestProjects = self.__getRequestProjects()
         self.__currentRequestProject = None
         self.prompt = ">>> "
+        self.intro = "welcome to cronus request tool by:kiravinci"
         
     #-------------------------------------------------------------------------------
     def __getRequestEntrys(self):
