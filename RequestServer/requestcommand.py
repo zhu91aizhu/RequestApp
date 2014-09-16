@@ -102,6 +102,9 @@ class RequestCommand(Cmd):
     
     def do_req(self, requestIndex):
         try:
+            if self.__currentRequestProject is None:
+                print "no project selected."
+                return
             reqIndex = int(requestIndex) - 1
             requestEntrys = self.__getRequestEntrys(self.__currentRequestProject)
             url = requestEntrys[reqIndex].getUrl()
