@@ -55,7 +55,7 @@ class RequestCommand(Cmd):
         '''显示所有项目'''
         if self.__requestProjects is None: return
         for index, requestProject in enumerate(self.__requestProjects):
-            print "| Index:", index + 1, "| Name: ", requestProject.getProjectName(), "| Alias: ", requestProject.getProjectAlias(), " |"
+            print "| Index:", index + 1, "| Name: ", requestProject.getProjectName(), "| Alias:", requestProject.getProjectAlias(), "|"
     
     ################################################################################
     def do_use(self, params):
