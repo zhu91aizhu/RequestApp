@@ -7,20 +7,28 @@ from requestreader import RequestReader
 from cmd import Cmd
 
 class RequestCommand(Cmd):
+    __SHOW_SUBCOMMAND = ['requests', 'projects']
+    
+    #-------------------------------------------------------------------------------
     def __init__(self, xmlfile):
+        '''init'''
         Cmd.__init__(self)
         self.__reqUrlReader = RequestReader(r"requesturl.xml")
         self.__requestProjects = self.__getRequestProjects()
         self.__currentRequestProject = None
         self.prompt = ">>> "
         
+    #-------------------------------------------------------------------------------
     def __getRequestEntrys(self):
+        '''获取当前项目下所有RequestEntry'''
         return self.__currentRequestProject.getRequestEntrys()
-        
+    
+    #-------------------------------------------------------------------------------
     def __getRequestProjects(self):
+        '''获取所有项目'''
         return self.__reqUrlReader.getRequestProjects()
     
-    ################################################################################
+    #-------------------------------------------------------------------------------
     def __use_project_index(self, project_index):
         """以项目索引选择项目"""
         try:
@@ -32,7 +40,7 @@ class RequestCommand(Cmd):
         except ValueError:
             print "project param error."
     
-    ################################################################################
+    #-------------------------------------------------------------------------------
     def __use_project_name(self, project_name):
         """以项目名称选择项目"""
         for project in self.__requestProjects:
@@ -42,22 +50,36 @@ class RequestCommand(Cmd):
                 return
         print "no project is name: %s" % project_name
     
+    #-------------------------------------------------------------------------------
     def do_prompt(self, prompt):
+        '''更改命令提示符命令'''
         self.prompt = prompt
     
+    #-------------------------------------------------------------------------------
     def do_show(self, params):
+        '''显示项目/RequestEntry命令'''
         params = params.split()
         func = getattr(self, "show_" + params[0])
         func(params[1:])
     
-    ################################################################################
+    #-------------------------------------------------------------------------------
+    def complete_show(self, text, line, begidx, endidx):
+        '''show 命令自动补全'''
+        if not text:
+            completions = self.__SHOW_SUBCOMMAND[:]
+        else:
+            completions = [subcommand for subcommand in self.__SHOW_SUBCOMMAND if subcommand.startswith(text)]
+            
+        return completions
+    
+    #-------------------------------------------------------------------------------
     def show_projects(self, params):
         '''显示所有项目'''
         if self.__requestProjects is None: return
         for index, requestProject in enumerate(self.__requestProjects):
             print "| Index:", index + 1, "| Name: ", requestProject.getProjectName(), "| Alias:", requestProject.getProjectAlias(), "|"
     
-    ################################################################################
+    #-------------------------------------------------------------------------------
     def do_use(self, params):
         '''选择request项目'''
         params = params.split()
@@ -75,8 +97,7 @@ class RequestCommand(Cmd):
             if params[0] == "-n":
                 self.__use_project_name(params[1])
         
-    
-    ################################################################################
+    #-------------------------------------------------------------------------------
     def show_requests(self, params):
         '''显示当前项目下所有request'''
         if self.__currentRequestProject is None:
@@ -99,16 +120,24 @@ class RequestCommand(Cmd):
         for index, requestEntry in enumerate(requestEntrys):
             print index + 1, "--->", requestEntry.getName()
     
+    #-------------------------------------------------------------------------------
     def do_exit(self, param):
-        return True
-        
-    def do_quit(self, param):
-        return True
-        
-    def do_EOF(self, params):
+        '''退出程序命令'''
         return True
     
+    #-------------------------------------------------------------------------------
+    def do_quit(self, param):
+        '''退出程序命令'''
+        return True
+    
+    #-------------------------------------------------------------------------------
+    def do_EOF(self, params):
+        '''退出程序命令'''
+        return True
+    
+    #-------------------------------------------------------------------------------
     def do_req(self, requestIndex):
+        '''以RequestEntry请求命令'''
         try:
             if self.__currentRequestProject is None:
                 print "no project selected."
