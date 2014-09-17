@@ -97,7 +97,7 @@ class RequestCommand(Cmd):
                 return
             if params[0] == "-n":
                 self.__use_project_name(params[1])
-        
+    
     #-------------------------------------------------------------------------------
     def show_requests(self, params):
         '''显示当前项目下所有request'''
