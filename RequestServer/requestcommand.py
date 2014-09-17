@@ -148,7 +148,7 @@ class RequestCommand(Cmd):
             return
         requestEntrys = self.__getRequestEntrys()[first_request_index:first_request_index + requests_limit]
         for index, requestEntry in enumerate(requestEntrys):
-            print index + 1, "--->", requestEntry.getName()
+            print index + first_request_index + 1, "--->", requestEntry.getName()
     
     #-------------------------------------------------------------------------------
     def do_exit(self, param):
