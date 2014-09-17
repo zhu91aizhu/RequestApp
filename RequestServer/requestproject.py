@@ -1,5 +1,5 @@
 class RequestProject:
-    def __init__(self, name = "", alias = "", host = "127.0.0.1", port = "8080", requestEntrys = None):
+    def __init__(self, name = "", alias = "", host = "", port = "", requestEntrys = None):
         self.__name = name
         self.__alias = alias
         self.__host = host
