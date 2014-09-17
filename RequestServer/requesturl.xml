@@ -6,7 +6,7 @@
             <port>8080</port>
             
             <requesturls>
-                <requesturl name="手机端登录" url="http://127.0.0.1:8080/iuser!login.action">
+                <requesturl name="手机端登录" url="iuser!login.action">
                     <params>
                         <param>
                             <paramname>uname</paramname>

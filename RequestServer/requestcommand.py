@@ -8,6 +8,7 @@ from cmd import Cmd
 
 class RequestCommand(Cmd):
     __SHOW_SUBCOMMAND = ['requests', 'projects']
+    __PROCONF_SUBCOMMAND = ["on", "off", "status"]
     
     #-------------------------------------------------------------------------------
     def __init__(self, xmlfile):
@@ -16,6 +17,7 @@ class RequestCommand(Cmd):
         self.__reqUrlReader = RequestReader(r"requesturl.xml")
         self.__requestProjects = self.__getRequestProjects()
         self.__currentRequestProject = None
+        self.__project_config = False
         self.prompt = ">>> "
         self.intro = "welcome to cronus request tool by:kiravinci"
         
@@ -55,6 +57,33 @@ class RequestCommand(Cmd):
     def do_prompt(self, prompt):
         '''更改命令提示符命令'''
         self.prompt = prompt
+    
+    #-------------------------------------------------------------------------------
+    def do_proconf(self, param):
+        '''项目配置'''
+        def print_status():
+            print "project config status:",self.__project_config
+        
+        if param == "status":
+            return print_status()
+        if param == "on":
+            self.__project_config = True
+            return print_status()
+        if param == "off":
+            self.__project_config = False
+            return print_status()
+            
+        print "error command param."
+    
+    #-------------------------------------------------------------------------------
+    def complete_proconf(self, text, line, begidx, endidx):
+        '''proconf命令自动补全'''
+        if not text:
+            completions = self.__PROCONF_SUBCOMMAND[:]
+        else:
+            completions = [subcommand for subcommand in self.__PROCONF_SUBCOMMAND if subcommand.startswith(text)]
+            
+        return completions
     
     #-------------------------------------------------------------------------------
     def do_show(self, params):
@@ -137,20 +166,46 @@ class RequestCommand(Cmd):
         return True
     
     #-------------------------------------------------------------------------------
-    def do_req(self, requestIndex):
+    def do_req(self, params):
         '''以RequestEntry请求命令'''
+        use_project_config = self.__project_config
+        
+        if len(params) == 0:
+            print "miss param."
+            return
+            
         try:
             if self.__currentRequestProject is None:
                 print "no project selected."
                 return
-            reqIndex = int(requestIndex) - 1
+                
+            params = params.split()
+            if len(params) == 1:
+                reqIndex = int(params[0]) - 1
+            if len(params) == 2:
+                if params[0] == "-u":
+                    use_project_config = True
+                elif params[0] == "-U":
+                    use_project_config = False
+                else:
+                    print "error command error."
+                reqIndex = int(params[1]) - 1
+                
             requestEntrys = self.__getRequestEntrys()
-            url = requestEntrys[reqIndex].getUrl()
-            params = urllib.urlencode({'data':json.dumps(requestEntrys[reqIndex].getParams())})
-            req = urllib2.Request(url, params)
-            response = urllib2.urlopen(req)
-            result = unicode(response.read(),'utf-8')
-            print result
+            if use_project_config:
+                url = self.__currentRequestProject.getProjectHost() + ":" + self.__currentRequestProject.getProjectPort() + "/" + requestEntrys[reqIndex].getUrl()
+            else:
+                url = requestEntrys[reqIndex].getUrl()
+            
+            request_params = urllib.urlencode({'data':json.dumps(requestEntrys[reqIndex].getParams())})
+            req = urllib2.Request(url, request_params)
+            
+            try:
+                response = urllib2.urlopen(req)
+                result = unicode(response.read(),'utf-8')
+                print result
+            except ValueError:
+                print "cannot access url or url error."
         except IndexError:
             print "req index error."
         except ValueError:
