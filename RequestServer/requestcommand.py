@@ -4,7 +4,9 @@ import urllib
 import urllib2
 import json
 from requestreader import RequestReader
+from xml.etree import ElementTree
 from cmd import Cmd
+from sys import exit
 
 class RequestCommand(Cmd):
     __SHOW_SUBCOMMAND = ['requests', 'projects']
@@ -14,7 +16,11 @@ class RequestCommand(Cmd):
     def __init__(self, xmlfile):
         '''init'''
         Cmd.__init__(self)
-        self.__reqUrlReader = RequestReader(r"requesturl.xml")
+        try:
+            self.__reqUrlReader = RequestReader(r"requesturl.xml")
+	except ElementTree.ParseError, err:
+	    print "xml error:", err
+	    exit(1)
         self.__requestProjects = self.__getRequestProjects()
         self.__currentRequestProject = None
         self.__project_config = False
