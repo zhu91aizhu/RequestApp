@@ -40,6 +40,74 @@
                 <requesturl name="获得企业详情">
                     <url>http://127.0.0.1:8080/iinformation!getCompanyDetailByClient.action</url>
                 </requesturl>
+
+                 <requesturl name="添加订单">
+                    <url>http://127.0.0.1:8080/iorder!addOrderByClient.action</url>
+                    <params>
+                        <param>
+                            <paramname>uid</paramname>
+                            <paramdata>14</paramdata>
+                        </param>
+                        
+                        <param>
+                            <paramname>bid</paramname>
+                            <paramdata>1</paramdata>
+                        </param>
+                        
+                        <param>
+                            <paramname>contactnumber</paramname>
+                            <paramdata>12345678901</paramdata>
+                        </param>
+
+                        <param>
+                            <paramname>recvaddress</paramname>
+                            <paramdata>beijing</paramdata>
+                        </param>
+
+                        <param>
+                            <paramname>payment</paramname>
+                            <paramdata>zhifubao</paramdata>
+                        </param>
+
+                        <param>
+                            <paramname>delivery</paramname>
+                            <paramdata>ziti</paramdata>
+                        </param>
+
+                        <param>
+                            <paramname>amount</paramname>
+                            <paramdata>200</paramdata>
+                        </param>
+
+                        <param>
+                            <paramname>shopcartvalue</paramname>
+                            <paramdata>9,10</paramdata>
+                        </param>
+
+                        <param>
+                            <paramname>token</paramname>
+                            <paramdata>3da52396-d6f4-44b5-b440-19d2abb9b554</paramdata>
+                        </param>
+                    </params>
+				</requesturl>
+
+				<requesturl name="获得首页基本信息">
+					<url>http://203.158.22.39:23401/iinformation!getBaseInformation.action</url>
+					<params>
+						<param>
+							<paramname>token</paramname>
+							<paramdata>3da52396-d6f4-44b5-b440-19d2abb9b554</paramdata>
+						</param>
+						<param>
+							<paramname>uid</paramname>
+							<paramdata>14</paramdata>
+						</param>
+						<param>
+							<paramname>gtype</paramname>
+							<paramdata>1</paramdata>
+						</param>
+					</params>
+				</requesturl>
             </requesturls>
         </project>
     </projects>
