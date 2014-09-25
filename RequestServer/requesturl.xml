@@ -109,6 +109,62 @@
 					</params>
 				</requesturl>
             </requesturls>
-        </project>
+		</project>
+
+		<project name="carwash" alias="洗车">
+			<host>http://127.0.0.1</host>
+			<port>8080</port>
+
+			<requesturls>
+				<requesturl name="手机端登录">
+					<url>iuser!loginByClient.action</url>
+
+					<params>
+						<param>
+							<paramname>username</paramname>
+							<paramdata>admin</paramdata>
+						</param>
+						<param>
+							<paramname>userpwd</paramname>
+							<paramdata>admin</paramdata>
+						</param>
+					</params>
+				</requesturl>
+
+				<requesturl name="获取注册验证码">
+					<url>iuser!getIdentifyingCode.action</url>
+
+					<params>
+						<param>
+							<paramname>username</paramname>
+							<paramdata>18201145249</paramdata>
+						</param>
+					</params>
+				</requesturl>
+
+				<requesturl name="手机端注册">
+					<url>iuser!registerByClient.action</url>
+
+					<params>
+						<param>
+							<paramname>username</paramname>
+							<paramdata>18201145249</paramdata>
+						</param>
+						<param>
+							<paramname>userpwd</paramname>
+							<paramdata>123456</paramdata>
+						</param>
+						<param>
+							<paramname>recommender</paramname>
+							<paramdata>13611283230</paramdata>
+						</param>
+						<param>
+							<paramname>identifying_code</paramname>
+							<paramdata>240678</paramdata>
+						</param>
+					</params>
+				</requesturl>
+			</requesturls>
+		</project>
     </projects>
 </requestmanager>

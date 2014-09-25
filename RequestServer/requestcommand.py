@@ -22,7 +22,9 @@ class RequestCommand(Cmd):
 	    print "xml error:", err
 	    exit(1)
         self.__requestProjects = self.__getRequestProjects()
+        self.__currentRequestProjectIndex = None
         self.__currentRequestProject = None
+        self.__currentRequestProjectName = None
         self.__project_config = False
         self.prompt = ">>> "
         self.intro = "welcome to cronus request tool by:kiravinci"
@@ -43,6 +45,8 @@ class RequestCommand(Cmd):
         try:
             project_index = int(project_index) - 1
             self.__currentRequestProject = self.__requestProjects[project_index]
+            self.__currentRequestProjectIndex = project_index
+            self.__currentRequestProjectName = None
             print "use project ok"
         except IndexError:
             print "project index out arange."
@@ -55,6 +59,8 @@ class RequestCommand(Cmd):
         for project in self.__requestProjects:
             if project.getProjectName() == project_name:
                 self.__currentRequestProject = project
+                self.__currentRequestProjectName = project_name
+                self.__currentRequestProjectIndex = None
                 print "use project ok."
                 return
         print "no project is name: %s" % project_name
@@ -155,6 +161,21 @@ class RequestCommand(Cmd):
         requestEntrys = self.__getRequestEntrys()[first_request_index:first_request_index + requests_limit]
         for index, requestEntry in enumerate(requestEntrys):
             print index + first_request_index + 1, "--->", requestEntry.getName()
+    #-------------------------------------------------------------------------------
+    def do_reload(self, params):
+        """重新载入程序"""
+        try:
+            self.__reqUrlReader = RequestReader(r"requesturl.xml")
+        except ElementTree.ParseError, err:
+	    print "xml error:", err
+	    exit(1)
+        self.__requestProjects = self.__getRequestProjects()
+        if self.__currentRequestProjectIndex:
+            self.__currentRequestProject = self.__use_project_index(self.__currentRequestProjectIndex)
+        if self.__currentRequestProjectName:
+            self.__currentRequestProject = self.__use_project_name(self.__currentRequestProjectName)
+        print "app reload success."
+
     
     #-------------------------------------------------------------------------------
     def do_exit(self, param):

@@ -7,14 +7,13 @@ class RequestReader:
     #----------------------------------------------------------------------
     def __init__(self, xmlfile):
 	"""init"""
-        self.xmlfile = xmlfile
-        self.__root = ElementTree.fromstring(open(self.xmlfile).read())
+        self.__xmlfile = xmlfile
+	self.__root = ElementTree.fromstring(open(self.__xmlfile).read())
     
     #----------------------------------------------------------------------
-    def __getRootElement(self, xmlfile = self.xmlfile):
+    def __getRootElement(self):
 	"""获取项目根节点"""
-	root = ElementTree.fromstring(open(xmlfile).read())
-	return root
+	return self.__root
         
     #----------------------------------------------------------------------
     def getRequestProjects(self):
