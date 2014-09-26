@@ -131,8 +131,34 @@
 					</params>
 				</requesturl>
 
+				<requesturl name="手机端登录（普通用户）">
+					<url>iuser!loginByClient.action</url>
+
+					<params>
+						<param>
+							<paramname>username</paramname>
+							<paramdata>18201145249</paramdata>
+						</param>
+						<param>
+							<paramname>userpwd</paramname>
+							<paramdata>111111</paramdata>
+						</param>
+					</params>
+				</requesturl>
+
 				<requesturl name="获取注册验证码">
-					<url>iuser!getIdentifyingCode.action</url>
+					<url>iuser!getRegisterIdentifyingCode.action</url>
+
+					<params>
+						<param>
+							<paramname>username</paramname>
+							<paramdata>18201145249</paramdata>
+						</param>
+					</params>
+				</requesturl>
+
+				<requesturl name="获取重置密码验证码">
+					<url>iuser!getResetUserPwdIdentifyingCode.action</url>
 
 					<params>
 						<param>
@@ -161,6 +187,25 @@
 						<param>
 							<paramname>identifying_code</paramname>
 							<paramdata>240678</paramdata>
+						</param>
+					</params>
+				</requesturl>
+
+				<requesturl name="手机端重置密码（忘记密码）">
+					<url>iuser!resetUserPwdByClientWithForget.action</url>
+
+					<params>
+						<param>
+							<paramname>username</paramname>
+							<paramdata>18201145249</paramdata>
+						</param>
+						<param>
+							<paramname>userpwd</paramname>
+							<paramdata>111111</paramdata>
+						</param>
+						<param>
+							<paramname>identify_code</paramname>
+							<paramdata>834979</paramdata>
 						</param>
 					</params>
 				</requesturl>

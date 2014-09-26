@@ -1,4 +1,5 @@
 #-*- coding:utf-8 -*-
+"""命令行解析模块"""
 
 import urllib
 import urllib2
@@ -6,76 +7,77 @@ import json
 from requestreader import RequestReader
 from xml.etree import ElementTree
 from cmd import Cmd
-from sys import exit
 
 class RequestCommand(Cmd):
+    """命令解析工具类"""
     __SHOW_SUBCOMMAND = ['requests', 'projects']
     __PROCONF_SUBCOMMAND = ["on", "off", "status"]
-    
-    #-------------------------------------------------------------------------------
-    def __init__(self, xmlfile):
+
+    #---------------------------------------------------------------------------
+    def __init__(self, xml_file_name):
         '''init'''
         Cmd.__init__(self)
         try:
-            self.__reqUrlReader = RequestReader(r"requesturl.xml")
-	except ElementTree.ParseError, err:
-	    print "xml error:", err
-	    exit(1)
-        self.__requestProjects = self.__getRequestProjects()
-        self.__currentRequestProjectIndex = None
-        self.__currentRequestProject = None
-        self.__currentRequestProjectName = None
+            self.__request_urlreader = RequestReader(xml_file_name)
+        except ElementTree.ParseError, err:
+            print "xml error:", err
+            exit(1)
+        self.__request_projects = self.__get_projects()
+        self.__current_project_info = {"current_index":None, \
+                "current_name": None}
+        self.__current_project = None
         self.__project_config = False
         self.prompt = ">>> "
         self.intro = "welcome to cronus request tool by:kiravinci"
-        
-    #-------------------------------------------------------------------------------
-    def __getRequestEntrys(self):
+
+    #---------------------------------------------------------------------------
+    def __get_request_entrys(self):
         '''获取当前项目下所有RequestEntry'''
-        return self.__currentRequestProject.getRequestEntrys()
-    
-    #-------------------------------------------------------------------------------
-    def __getRequestProjects(self):
+        return self.__current_project.getRequestEntrys()
+
+    #---------------------------------------------------------------------------
+    def __get_projects(self):
         '''获取所有项目'''
-        return self.__reqUrlReader.getRequestProjects()
-    
-    #-------------------------------------------------------------------------------
+        return self.__request_urlreader.getRequestProjects()
+
+    #---------------------------------------------------------------------------
     def __use_project_index(self, project_index):
         """以项目索引选择项目"""
         try:
             project_index = int(project_index) - 1
-            self.__currentRequestProject = self.__requestProjects[project_index]
-            self.__currentRequestProjectIndex = project_index
-            self.__currentRequestProjectName = None
+            self.__current_project = self.__request_projects[project_index]
+            self.__current_project_info["current_name"] = None
+            self.__current_project_info["current_index"] = project_index
             print "use project ok"
         except IndexError:
             print "project index out arange."
         except ValueError:
             print "project param error."
-    
-    #-------------------------------------------------------------------------------
+
+    #---------------------------------------------------------------------------
     def __use_project_name(self, project_name):
         """以项目名称选择项目"""
-        for project in self.__requestProjects:
+        for project in self.__request_projects:
             if project.getProjectName() == project_name:
-                self.__currentRequestProject = project
-                self.__currentRequestProjectName = project_name
-                self.__currentRequestProjectIndex = None
+                self.__current_project = project
+                self.__current_project_info["current_name"] = project_name
+                self.__current_project_info["current_index"] = None
                 print "use project ok."
                 return
         print "no project is name: %s" % project_name
-    
-    #-------------------------------------------------------------------------------
+
+    #---------------------------------------------------------------------------
     def do_prompt(self, prompt):
         '''更改命令提示符命令'''
         self.prompt = prompt
-    
-    #-------------------------------------------------------------------------------
+
+    #---------------------------------------------------------------------------
     def do_proconf(self, param):
         '''项目配置'''
         def print_status():
-            print "project config status:",self.__project_config
-        
+            """输出项目配置状态"""
+            print "project config status:", self.__project_config
+
         if param == "status":
             return print_status()
         if param == "on":
@@ -84,44 +86,49 @@ class RequestCommand(Cmd):
         if param == "off":
             self.__project_config = False
             return print_status()
-            
+
         print "error command param."
-    
-    #-------------------------------------------------------------------------------
+
+    #---------------------------------------------------------------------------
     def complete_proconf(self, text, line, begidx, endidx):
         '''proconf命令自动补全'''
         if not text:
             completions = self.__PROCONF_SUBCOMMAND[:]
         else:
-            completions = [subcommand for subcommand in self.__PROCONF_SUBCOMMAND if subcommand.startswith(text)]
-            
+            completions = [subcommand for subcommand in \
+                    self.__PROCONF_SUBCOMMAND if subcommand.startswith(text)]
+
         return completions
-    
-    #-------------------------------------------------------------------------------
+
+    #---------------------------------------------------------------------------
     def do_show(self, params):
         '''显示项目/RequestEntry命令'''
         params = params.split()
         func = getattr(self, "show_" + params[0])
         func(params[1:])
-    
-    #-------------------------------------------------------------------------------
+
+    #---------------------------------------------------------------------------
     def complete_show(self, text, line, begidx, endidx):
         '''show 命令自动补全'''
         if not text:
             completions = self.__SHOW_SUBCOMMAND[:]
         else:
-            completions = [subcommand for subcommand in self.__SHOW_SUBCOMMAND if subcommand.startswith(text)]
-            
+            completions = [subcommand for subcommand in self.__SHOW_SUBCOMMAND \
+                    if subcommand.startswith(text)]
+
         return completions
-    
-    #-------------------------------------------------------------------------------
+
+    #---------------------------------------------------------------------------
     def show_projects(self, params):
         '''显示所有项目'''
-        if self.__requestProjects is None: return
-        for index, requestProject in enumerate(self.__requestProjects):
-            print "| Index:", index + 1, "| Name: ", requestProject.getProjectName(), "| Alias:", requestProject.getProjectAlias(), "|"
-    
-    #-------------------------------------------------------------------------------
+        if self.__request_projects is None:
+            return
+        for index, request_project in enumerate(self.__request_projects):
+            print "| Index:", index + 1, "| Name: \
+                    ", request_project.getProjectName(), "| Alias:" \
+                    , request_project.getProjectAlias(), "|"
+
+    #---------------------------------------------------------------------------
     def do_use(self, params):
         '''选择request项目'''
         params = params.split()
@@ -138,14 +145,14 @@ class RequestCommand(Cmd):
                 return
             if params[0] == "-n":
                 self.__use_project_name(params[1])
-    
-    #-------------------------------------------------------------------------------
+
+    #---------------------------------------------------------------------------
     def show_requests(self, params):
         '''显示当前项目下所有request'''
-        if self.__currentRequestProject is None:
+        if self.__current_project is None:
             print "no project selected."
             return
-        first_request_index = 0
+        first_index = 0
         requests_limit = 10
         try:
             if params:
@@ -153,62 +160,68 @@ class RequestCommand(Cmd):
                 if params_length == 1:
                     requests_limit = int(params[0])
                 if params_length == 2:
-                    first_request_index = int(params[0]) - 1
+                    first_index = int(params[0]) - 1
                     requests_limit = int(params[1])
         except ValueError:
             print "limit param error."
             return
-        requestEntrys = self.__getRequestEntrys()[first_request_index:first_request_index + requests_limit]
-        for index, requestEntry in enumerate(requestEntrys):
-            print index + first_request_index + 1, "--->", requestEntry.getName()
-    #-------------------------------------------------------------------------------
+        request_entrys = self.__get_request_entrys()[first_index:first_index \
+                + requests_limit]
+        for index, request_entry in enumerate(request_entrys):
+            print index + first_index + 1, "--->", \
+                    request_entry.getName()
+    #---------------------------------------------------------------------------
     def do_reload(self, params):
         """重新载入程序"""
         try:
-            self.__reqUrlReader = RequestReader(r"requesturl.xml")
+            self.__request_urlreader = RequestReader(r"requesturl.xml")
         except ElementTree.ParseError, err:
-	    print "xml error:", err
-	    exit(1)
-        self.__requestProjects = self.__getRequestProjects()
-        if self.__currentRequestProjectIndex:
-            self.__currentRequestProject = self.__use_project_index(self.__currentRequestProjectIndex)
-        if self.__currentRequestProjectName:
-            self.__currentRequestProject = self.__use_project_name(self.__currentRequestProjectName)
+            print "xml error:", err
+            exit(1)
+        self.__request_projects = self.__get_projects()
+        if self.__current_project_info["current_index"]:
+            self.__current_project = self.__use_project_index(\
+                    self.__current_project_info["current_index"])
+        if self.__current_project_info["current_name"]:
+            self.__current_project = self.__use_project_name(\
+                    self.__current_project_info["current_name"])
         print "app reload success."
 
-    
-    #-------------------------------------------------------------------------------
-    def do_exit(self, param):
+    #---------------------------------------------------------------------------
+    @classmethod
+    def do_exit(cls, param):
         '''退出程序命令'''
         return True
-    
-    #-------------------------------------------------------------------------------
-    def do_quit(self, param):
+
+    #---------------------------------------------------------------------------
+    @classmethod
+    def do_quit(cls, param):
         '''退出程序命令'''
         return True
-    
-    #-------------------------------------------------------------------------------
-    def do_EOF(self, params):
+
+    #---------------------------------------------------------------------------
+    @classmethod
+    def do_eof(cls, params):
         '''退出程序命令'''
         return True
-    
-    #-------------------------------------------------------------------------------
+
+    #---------------------------------------------------------------------------
     def do_req(self, params):
         '''以RequestEntry请求命令'''
         use_project_config = self.__project_config
-        
+
         if len(params) == 0:
             print "miss param."
             return
-            
+
         try:
-            if self.__currentRequestProject is None:
+            if self.__current_project is None:
                 print "no project selected."
                 return
-                
+
             params = params.split()
             if len(params) == 1:
-                reqIndex = int(params[0]) - 1
+                request_index = int(params[0]) - 1
             if len(params) == 2:
                 if params[0] == "-u":
                     use_project_config = True
@@ -216,20 +229,23 @@ class RequestCommand(Cmd):
                     use_project_config = False
                 else:
                     print "error command error."
-                reqIndex = int(params[1]) - 1
-                
-            requestEntrys = self.__getRequestEntrys()
+                request_index = int(params[1]) - 1
+
+            request_entrys = self.__get_request_entrys()
             if use_project_config:
-                url = self.__currentRequestProject.getProjectHost() + ":" + self.__currentRequestProject.getProjectPort() + "/" + requestEntrys[reqIndex].getUrl()
+                url = self.__current_project.getProjectHost() + ":" \
+                        + self.__current_project.getProjectPort() \
+                        + "/" + request_entrys[request_index].getUrl()
             else:
-                url = requestEntrys[reqIndex].getUrl()
-            
-            request_params = urllib.urlencode({'data':json.dumps(requestEntrys[reqIndex].getParams())})
+                url = request_entrys[request_index].getUrl()
+
+            request_params = urllib.urlencode({
+                'data':json.dumps(request_entrys[request_index].getParams())})
             req = urllib2.Request(url, request_params)
-            
+
             try:
                 response = urllib2.urlopen(req)
-                result = unicode(response.read(),'utf-8')
+                result = unicode(response.read(), 'utf-8')
                 print result
             except ValueError:
                 print "cannot access url or url error."
