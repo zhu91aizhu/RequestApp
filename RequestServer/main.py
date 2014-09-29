@@ -1,5 +1,7 @@
+# _*_ coding:utf-8 _*_
+"""程序入口模块"""
 from requestcommand import RequestCommand
-        
+
 if __name__ == "__main__":
-    reqCmd = RequestCommand(r"requesturl.xml")
-    reqCmd.cmdloop()
+    REQ_CMD = RequestCommand(r"requesturl.xml")
+    REQ_CMD.cmdloop()

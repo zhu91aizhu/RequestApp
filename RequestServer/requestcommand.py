@@ -32,13 +32,13 @@ class RequestCommand(Cmd):
 
     #---------------------------------------------------------------------------
     def __get_request_entrys(self):
-        '''获取当前项目下所有RequestEntry'''
-        return self.__current_project.getRequestEntrys()
+        """获取当前项目下所有RequestEntry"""
+        return self.__current_project.get_request_entrys()
 
     #---------------------------------------------------------------------------
     def __get_projects(self):
         '''获取所有项目'''
-        return self.__request_urlreader.getRequestProjects()
+        return self.__request_urlreader.get_request_projects()
 
     #---------------------------------------------------------------------------
     def __use_project_index(self, project_index):
@@ -58,7 +58,7 @@ class RequestCommand(Cmd):
     def __use_project_name(self, project_name):
         """以项目名称选择项目"""
         for project in self.__request_projects:
-            if project.getProjectName() == project_name:
+            if project.get_project_name() == project_name:
                 self.__current_project = project
                 self.__current_project_info["current_name"] = project_name
                 self.__current_project_info["current_index"] = None
@@ -125,8 +125,8 @@ class RequestCommand(Cmd):
             return
         for index, request_project in enumerate(self.__request_projects):
             print "| Index:", index + 1, "| Name: \
-                    ", request_project.getProjectName(), "| Alias:" \
-                    , request_project.getProjectAlias(), "|"
+                    ", request_project.get_project_name(), "| Alias:" \
+                    , request_project.get_project_alias(), "|"
 
     #---------------------------------------------------------------------------
     def do_use(self, params):
@@ -169,7 +169,7 @@ class RequestCommand(Cmd):
                 + requests_limit]
         for index, request_entry in enumerate(request_entrys):
             print index + first_index + 1, "--->", \
-                    request_entry.getName()
+                    request_entry.get_name()
     #---------------------------------------------------------------------------
     def do_reload(self, params):
         """重新载入程序"""
@@ -233,14 +233,14 @@ class RequestCommand(Cmd):
 
             request_entrys = self.__get_request_entrys()
             if use_project_config:
-                url = self.__current_project.getProjectHost() + ":" \
-                        + self.__current_project.getProjectPort() \
-                        + "/" + request_entrys[request_index].getUrl()
+                url = self.__current_project.get_project_host() + ":" \
+                        + self.__current_project.get_project_port() \
+                        + "/" + request_entrys[request_index].get_url()
             else:
-                url = request_entrys[request_index].getUrl()
+                url = request_entrys[request_index].get_url()
 
             request_params = urllib.urlencode({
-                'data':json.dumps(request_entrys[request_index].getParams())})
+                'data':json.dumps(request_entrys[request_index].get_params())})
             req = urllib2.Request(url, request_params)
 
             try:

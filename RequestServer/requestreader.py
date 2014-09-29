@@ -1,99 +1,109 @@
 #-*- coding:utf-8 -*-
+"""xml文件读取模块"""
+
 from requestentry import RequestEntry
 from requestproject import RequestProject
 from xml.etree import ElementTree
 
-class RequestReader:
+class RequestReader(object):
+    """xml文件读取工具类"""
     #----------------------------------------------------------------------
     def __init__(self, xmlfile):
-	"""init"""
+        """init"""
         self.__xmlfile = xmlfile
-	self.__root = ElementTree.fromstring(open(self.__xmlfile).read())
-    
+        self.__root = ElementTree.fromstring(open(self.__xmlfile).read())
+
     #----------------------------------------------------------------------
-    def __getRootElement(self):
-	"""获取项目根节点"""
-	return self.__root
-        
+    def __get_root_element(self):
+        """获取项目根节点"""
+        return self.__root
+
     #----------------------------------------------------------------------
-    def getRequestProjects(self):
-	"""获取所有请求项目"""
-        projectsElement = self.__root.find("projects")
-        projectItems = projectsElement.getiterator("project")
+    def get_request_projects(self):
+        """获取所有请求项目"""
+        projects_element = self.__root.find("projects")
+        project_items = projects_element.getiterator("project")
         projects = []
-        for project in projectItems:
-            requestEntrys = self.__getRequestUrlEntrys(project)
-            projectName = self.__getElementAttributeValue(project, "name")
-            projectAlias = self.__getElementAttributeValue(project, "alias")
-            projectHost = self.__getElementAttributeValue(project, "host")
-            projectPort = self.__getElementAttributeValue(project, "port")
-            requestProject = RequestProject(projectName, projectAlias, projectHost, projectPort, requestEntrys)
-            projects.append(requestProject)
+        for project in project_items:
+            request_entrys = self.__get_requesturl_entrys(project)
+            project_name = self.__get_element_attribute_value(project, "name")
+            project_alias = self.__get_element_attribute_value(project, "alias")
+            project_host = self.__get_element_attribute_value(project, "host")
+            project_port = self.__get_element_attribute_value(project, "port")
+            request_project = RequestProject(project_name, request_entrys)
+            request_project.set_project_host(project_host)
+            request_project.set_project_alias(project_alias)
+            request_project.set_project_port(project_port)
+            projects.append(request_project)
         return projects
-    
+
     #----------------------------------------------------------------------
-    def __getElementAttributeValue(self, srcElement, attrName):
-	"""获取给定节点的属性值"""
-        if srcElement.get(attrName) is None:
-            element = srcElement.find(attrName)
+    @classmethod
+    def __get_element_attribute_value(cls, src_element, attr_name):
+        """获取给定节点的属性值"""
+        if src_element.get(attr_name) is None:
+            element = src_element.find(attr_name)
             return element.text
         else:
-            return srcElement.get(attrName)
-    
+            return src_element.get(attr_name)
+
     #----------------------------------------------------------------------
-    def getRequestEntrys(self, projectElement):
-	"""获取给定节点下多有requesturl节点"""
-        return projectElement.getiterator("requesturls/requesturl")
-    
+    @classmethod
+    def get_request_entrys(cls, project_element):
+        """获取给定节点下多有requesturl节点"""
+        return project_element.getiterator("requesturls/requesturl")
+
     #----------------------------------------------------------------------
-    def __getChildrenElements(self, rootElement, elementName = "requesturl"):
-	"""获取给定节点下的所有子节点"""
-        return rootElement.getiterator(elementName)
-    
+    @classmethod
+    def __get_children_elements(cls, root_element, element_name="requesturl"):
+        """获取给定节点下的所有子节点"""
+        return root_element.getiterator(element_name)
+
     #----------------------------------------------------------------------
-    def __getElement(self, rootElement, elementName):
-	"""从根节点获取节点"""
-        return rootElement.find(elementName)
-    
+    @classmethod
+    def __get_element(cls, root_element, element_name):
+        """从根节点获取节点"""
+        return root_element.find(element_name)
+
     #----------------------------------------------------------------------
-    def __getRequestUrlEntrys(self, paramElement):
-	"""获取指定节点下所有RequestUrlEntry"""
-        requesturls = self.__getChildrenElements(paramElement)
-        requestEntrys = []
-		
+    def __get_requesturl_entrys(self, param_element):
+        """获取指定节点下所有RequestUrlEntry"""
+        requesturls = self.__get_children_elements(param_element)
+        request_entrys = []
+
         for requesturl in requesturls:
-            requestEntry = RequestEntry()
+            request_entry = RequestEntry()
             if requesturl.get("name") is None:
                 element = requesturl.find("name")
-                requestEntry.setName(element.text)
+                request_entry.set_name(element.text)
             else:
-                requestEntry.setName(requesturl.get("name"))
+                request_entry.set_name(requesturl.get("name"))
             if requesturl.get("url") is None:
                 element = requesturl.find("url")
-                requestEntry.setUrl(element.text)
+                request_entry.set_url(element.text)
             else:
-                requestEntry.setUrl(requesturl.get("url"))
-            paramsElement = requesturl.find("params")
+                request_entry.set_url(requesturl.get("url"))
+            params_element = requesturl.find("params")
             params = {}
-            
-            if paramsElement is None:
-                requestEntrys.append(requestEntry)
+
+            if params_element is None:
+                request_entrys.append(request_entry)
                 continue
-            
-            for paramElement in paramsElement.getchildren():
-                if paramElement.get("paramname") is None:
-                    element = paramElement.find("paramname")
+
+            for param_element in params_element.getchildren():
+                if param_element.get("paramname") is None:
+                    element = param_element.find("paramname")
                     paramname = element.text
                 else:
-                    paramname = paramElement.get("paramname")
-                   
-                if paramElement.get("paramdata") is None:
-                    element = paramElement.find("paramdata")
+                    paramname = param_element.get("paramname")
+
+                if param_element.get("paramdata") is None:
+                    element = param_element.find("paramdata")
                     paramdata = element.text
                 else:
-                    paramdata = paramElement.get("paramdata")
+                    paramdata = param_element.get("paramdata")
                 params[paramname] = paramdata
-            requestEntry.setParams(params)
-            requestEntrys.append(requestEntry)
-			
-        return requestEntrys
+            request_entry.set_params(params)
+            request_entrys.append(request_entry)
+
+        return request_entrys
