@@ -1,7 +1,6 @@
 #-*- coding:utf-8 -*-
 """命令行解析模块"""
 
-
 from requestreader import RequestReader
 from xml.etree import ElementTree
 from cmd import Cmd
@@ -204,30 +203,55 @@ class RequestCommand(Cmd):
         return True
 
     #---------------------------------------------------------------------------
+    @classmethod
+    def __argument_parser(cls, params):
+        """解析参数"""
+        from shlex import split
+        from argparse import ArgumentParser
+
+        parser = ArgumentParser()
+        parser.add_argument("-a", action="store", dest="append_params")
+        project_group = parser.add_mutually_exclusive_group()
+        project_group.add_argument("-c", action="store_const", \
+                            dest="project_config", const=True)
+        project_group.add_argument("-C", action="store_const", \
+                            dest="project_config", const=False)
+        request_group = parser.add_mutually_exclusive_group()
+        request_group.add_argument("-i", action="store", \
+                            dest="request_index", type=int)
+
+        return parser.parse_args(split(params))
+
+    #---------------------------------------------------------------------------
+    @classmethod
+    def __update_params(cls, results, request_entrys, request_index, params):
+        """更新参数字典"""
+        append_params = {}
+        append_params_tmp = []
+        if results.append_params is not None:
+            append_params_tmp = results.append_params.replace(" ", \
+                                                                "").split(",")
+        for append_param_tmp in append_params_tmp:
+            param_tmp = append_param_tmp.split(":")
+            append_params[param_tmp[0]] = param_tmp[1]
+
+        return dict(request_entrys[request_index].get_params(), **append_params)
+
+    #---------------------------------------------------------------------------
     def do_req(self, params):
         '''以RequestEntry请求命令'''
         import urllib
         import urllib2
-        from json import dumps, loads
-        from shlex import split
-        from argparse import ArgumentParser
-        
+        from json import dumps
+
         use_project_config = self.__project_config
 
         if self.__current_project is None:
             print "no project selected."
             return
-        
-        parser = ArgumentParser()
-        parser.add_argument("-a", action="store", dest="append_params")
-        project_group = parser.add_mutually_exclusive_group()
-        project_group.add_argument("-c", action="store_const", dest="project_config", const=True)
-        project_group.add_argument("-C", action="store_const", dest="project_config", const=False)
-        request_group = parser.add_mutually_exclusive_group()
-        request_group.add_argument("-i", action="store", dest="request_index", type=int)
-        #request_group.add_argument("request_index", action="store", dest="request_index", type=int)
-        
-        results = parser.parse_args(split(params))
+
+        results = RequestCommand.__argument_parser(params)
+        print results
         request_index = results.request_index
         if results.project_config is not None:
             use_project_config = results.project_config
@@ -240,25 +264,21 @@ class RequestCommand(Cmd):
                         + "/" + request_entrys[request_index].get_url()
             else:
                 url = request_entrys[request_index].get_url()
-            append_params = results.append_params.replace(" ", "").split(",")
-            params = {}
-            for append_param in append_params:
-                param = append_param.split(":")
-                params[param[0]] = param[1]
+
             request_params = urllib.urlencode({
-                'data':dumps(dict(request_entrys[request_index].get_params(), **params))})
+                'data':dumps(RequestCommand.__update_params(results, \
+                    request_entrys, request_index, params))})
             print request_params
-            req = urllib2.Request(url, request_params)
 
             try:
-                response = urllib2.urlopen(req)
+                response = urllib2.urlopen(urllib2.Request(url, request_params))
                 result = unicode(response.read(), 'utf-8')
                 print result
-            except ValueError as ve:
-                print "cannot access url or url error.", ve
-        except IndexError as ie:
-            print "req index error.", ie
-        except ValueError as ve:
-            print "limit param error.", ve
-        except urllib2.URLError as ue:
-            print "cannot access url or url error.", ue
+            except ValueError as value_error:
+                print "cannot access url or url error.", value_error
+        except IndexError:
+            print "req index error."
+        except ValueError as value_error:
+            print "limit param error.", value_error
+        except urllib2.URLError as url_error:
+            print "cannot access url or url error.", url_error
