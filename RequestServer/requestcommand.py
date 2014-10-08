@@ -216,15 +216,14 @@ class RequestCommand(Cmd):
                             dest="project_config", const=True)
         project_group.add_argument("-C", action="store_const", \
                             dest="project_config", const=False)
-        request_group = parser.add_mutually_exclusive_group()
-        request_group.add_argument("-i", action="store", \
+        parser.add_argument("-i", "--index", action="store", required=True, \
                             dest="request_index", type=int)
 
         return parser.parse_args(split(params))
 
     #---------------------------------------------------------------------------
     @classmethod
-    def __update_params(cls, results, request_entrys, request_index, params):
+    def __update_params(cls, results, request_entrys, request_index):
         """更新参数字典"""
         append_params = {}
         append_params_tmp = []
@@ -251,7 +250,6 @@ class RequestCommand(Cmd):
             return
 
         results = RequestCommand.__argument_parser(params)
-        print results
         request_index = results.request_index
         if results.project_config is not None:
             use_project_config = results.project_config
@@ -267,7 +265,7 @@ class RequestCommand(Cmd):
 
             request_params = urllib.urlencode({
                 'data':dumps(RequestCommand.__update_params(results, \
-                    request_entrys, request_index, params))})
+                    request_entrys, request_index))})
             print request_params
 
             try:
