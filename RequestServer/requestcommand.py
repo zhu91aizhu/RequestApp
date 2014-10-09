@@ -250,7 +250,7 @@ class RequestCommand(Cmd):
             return
 
         results = RequestCommand.__argument_parser(params)
-        request_index = results.request_index
+        request_index = results.request_index - 1
         if results.project_config is not None:
             use_project_config = results.project_config
 
