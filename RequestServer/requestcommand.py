@@ -234,7 +234,11 @@ class RequestCommand(Cmd):
             param_tmp = append_param_tmp.split(":")
             append_params[param_tmp[0]] = param_tmp[1]
 
-        return dict(request_entrys[request_index].get_params(), **append_params)
+        src_params = request_entrys[request_index].get_params()
+        if src_params is None:
+            src_params = {}
+
+        return dict(src_params, **append_params)
 
     #---------------------------------------------------------------------------
     def do_req(self, params):
