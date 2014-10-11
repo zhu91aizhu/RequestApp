@@ -43,8 +43,9 @@ class RequestCommand(Cmd):
         try:
             project_index = int(project_index) - 1
             self.__current_project = self.__request_projects[project_index]
+            print self.__current_project
             self.__current_project_info["current_name"] = None
-            self.__current_project_info["current_index"] = project_index
+            self.__current_project_info["current_index"] = project_index + 1
             print "use project ok"
         except IndexError:
             print "project index out arange."
@@ -54,6 +55,10 @@ class RequestCommand(Cmd):
     #---------------------------------------------------------------------------
     def __use_project_name(self, project_name):
         """以项目名称选择项目"""
+        if project_name is None:
+            print "project name is None"
+            return
+
         for project in self.__request_projects:
             if project.get_project_name() == project_name:
                 self.__current_project = project
@@ -175,14 +180,31 @@ class RequestCommand(Cmd):
         except ElementTree.ParseError, err:
             print "xml error:", err
             exit(1)
+
+        from shlex import split
+        from argparse import ArgumentParser
+
+        parser = ArgumentParser()
+        project_group = parser.add_mutually_exclusive_group()
+        project_group.add_argument("-a", action="store_const", \
+                            dest="reload_config", const=False)
+        project_group.add_argument("-p", action="store_const", \
+                            dest="reload_config", const=True)
+        results = parser.parse_args(split(params))
+
         self.__request_projects = self.__get_projects()
-        if self.__current_project_info["current_index"]:
-            self.__current_project = self.__use_project_index(\
-                    self.__current_project_info["current_index"])
-        if self.__current_project_info["current_name"]:
-            self.__current_project = self.__use_project_name(\
-                    self.__current_project_info["current_name"])
-        print "app reload success."
+        if results.reload_config:
+            if self.__current_project_info["current_index"]:
+                self.__use_project_index(\
+                        self.__current_project_info["current_index"])
+            else:
+                self.__use_project_name(\
+                        self.__current_project_info["current_name"])
+            print "project reload success."
+        else:
+            self.__current_project = None
+            self.__project_config = False
+            print "app reload success."
 
     #---------------------------------------------------------------------------
     @classmethod
