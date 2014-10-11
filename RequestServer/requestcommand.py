@@ -43,7 +43,6 @@ class RequestCommand(Cmd):
         try:
             project_index = int(project_index) - 1
             self.__current_project = self.__request_projects[project_index]
-            print self.__current_project
             self.__current_project_info["current_name"] = None
             self.__current_project_info["current_index"] = project_index + 1
             print "use project ok"
