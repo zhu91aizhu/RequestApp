@@ -232,6 +232,10 @@ class RequestCommand(Cmd):
 
         parser = ArgumentParser()
         parser.add_argument("-a", action="store", dest="append_params")
+        parser.add_argument("-r", "--replace", action="store", \
+                dest="replace_params")
+        parser.add_argument("-d", "--data", action="store_const", \
+                dest="is_print", const=True)
         project_group = parser.add_mutually_exclusive_group()
         project_group.add_argument("-c", action="store_const", \
                             dest="project_config", const=True)
@@ -262,6 +266,33 @@ class RequestCommand(Cmd):
         return dict(src_params, **append_params)
 
     #---------------------------------------------------------------------------
+    @classmethod
+    def __replace_params(cls, src_params, replace_params):
+        """替换请求参数"""
+        if replace_params is None:
+            return src_params
+
+        # 将请求参数转换成列表
+        params = replace_params.replace(" ", "").split(",")
+        for param in params:
+            data = param.split(":")
+            if not src_params.has_key(data[0]):
+                print "replace param '%s' is not exists." % data[0]
+                continue
+            src_params[data[0]] = data[1]
+
+        return src_params
+
+    #---------------------------------------------------------------------------
+    @classmethod
+    def __print_params(cls, is_print, params):
+        """打印参数"""
+        import urllib
+
+        if is_print is not None:
+            print urllib.unquote_plus(params)
+
+    #---------------------------------------------------------------------------
     def do_req(self, params):
         '''以RequestEntry请求命令'''
         import urllib
@@ -288,10 +319,17 @@ class RequestCommand(Cmd):
             else:
                 url = request_entrys[request_index].get_url()
 
+            # 更新请求参数
+            request_params = RequestCommand.__update_params(results, \
+                    request_entrys, request_index)
+            # 替换请求参数
+            request_params = RequestCommand.__replace_params(request_params, \
+                    results.replace_params)
+            # 转换请求参数
             request_params = urllib.urlencode({
-                'data':dumps(RequestCommand.__update_params(results, \
-                    request_entrys, request_index))})
-            print request_params
+                'data':dumps(request_params)})
+            # 打印参数
+            RequestCommand.__print_params(results.is_print, request_params)
 
             try:
                 response = urllib2.urlopen(urllib2.Request(url, request_params))
