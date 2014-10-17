@@ -104,9 +104,14 @@ class RequestCommand(Cmd):
     #---------------------------------------------------------------------------
     def do_show(self, params):
         '''显示项目/RequestEntry命令'''
-        params = params.split()
-        func = getattr(self, "show_" + params[0])
-        func(params[1:])
+        try:
+            params = params.split()
+            func = getattr(self, "show_" + params[0])
+            func(params[1:])
+        except AttributeError:
+            print "command '%s' is exist." % params[0]
+        except IndexError:
+            print "less command param."
 
     #---------------------------------------------------------------------------
     def complete_show(self, text, line, begidx, endidx):
