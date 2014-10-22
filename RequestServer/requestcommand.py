@@ -16,9 +16,13 @@ class RequestCommand(Cmd):
         Cmd.__init__(self)
         try:
             self.__request_urlreader = RequestReader(xml_file_name)
+        except IOError:
+            print "No such file: '%s'" % xml_file_name
+            exit(1)
         except ElementTree.ParseError, err:
             print "xml error:", err
             exit(1)
+        self.__projects_file = xml_file_name
         self.__request_projects = self.__get_projects()
         self.__current_project_info = {"current_index":None, \
                 "current_name": None}
@@ -176,28 +180,25 @@ class RequestCommand(Cmd):
         for index, request_entry in enumerate(request_entrys):
             print index + first_index + 1, "--->", \
                     request_entry.get_name()
+
     #---------------------------------------------------------------------------
-    def do_reload(self, params):
+    def __reload(self, file_name, is_loadapp):
         """重新载入程序"""
         try:
-            self.__request_urlreader = RequestReader(r"requesturl.xml")
+            self.__request_urlreader = RequestReader(file_name)
+        except IOError:
+            print "No such file: '%s'" % file_name
+            return
         except ElementTree.ParseError, err:
             print "xml error:", err
-            exit(1)
-
-        from shlex import split
-        from argparse import ArgumentParser
-
-        parser = ArgumentParser()
-        project_group = parser.add_mutually_exclusive_group()
-        project_group.add_argument("-a", action="store_const", \
-                            dest="reload_config", const=False)
-        project_group.add_argument("-p", action="store_const", \
-                            dest="reload_config", const=True)
-        results = parser.parse_args(split(params))
+            return
 
         self.__request_projects = self.__get_projects()
-        if results.reload_config:
+        if is_loadapp:
+            self.__current_project = None
+            self.__project_config = False
+            print "app reload success."
+        else:
             if self.__current_project_info["current_index"]:
                 self.__use_project_index(\
                         self.__current_project_info["current_index"])
@@ -205,10 +206,31 @@ class RequestCommand(Cmd):
                 self.__use_project_name(\
                         self.__current_project_info["current_name"])
             print "project reload success."
-        else:
-            self.__current_project = None
-            self.__project_config = False
-            print "app reload success."
+        self.__projects_file = file_name
+
+    #---------------------------------------------------------------------------
+    def do_switch(self, params):
+        """项目配置文件切换命令"""
+        if params is None or params == "":
+            print "miss project xml file."
+            return
+
+        self.__reload(params, True)
+
+    #---------------------------------------------------------------------------
+    def do_reload(self, params):
+        """重新载入程序"""
+        from shlex import split
+        from argparse import ArgumentParser
+
+        parser = ArgumentParser()
+        project_group = parser.add_mutually_exclusive_group()
+        project_group.add_argument("-a", action="store_const", \
+                            dest="reload_config", const=True)
+        project_group.add_argument("-p", action="store_const", \
+                            dest="reload_config", const=False)
+        results = parser.parse_args(split(params))
+        self.__reload(self.__projects_file, results.reload_config)
 
     #---------------------------------------------------------------------------
     @classmethod
