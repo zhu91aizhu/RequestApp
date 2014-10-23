@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<requestmanager>
+    <projects>
+        <project name="example" alias="case">
+            <host>http://127.0.0.1</host>
+            <port>8080</port>
+            
+            <requesturls>
+                <requesturl name="login" url="iuser!login.action">
+                    <params>
+                        <param>
+                            <paramname>name</paramname>
+                            <paramdata>admin</paramdata>
+                        </param>
+                        <param>
+                            <paramname>pwd</paramname>
+                            <paramdata>123456</paramdata>
+                        </param>
+                    </params>
+                </requesturl>
+            </requesturls>
+        </project>
+    </project>
+</requestmanager>
