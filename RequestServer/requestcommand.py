@@ -9,6 +9,7 @@ class RequestCommand(Cmd):
     """命令解析工具类"""
     __SHOW_SUBCOMMAND = ['requests', 'projects']
     __PROCONF_SUBCOMMAND = ["on", "off", "status"]
+    __storage = {}
 
     #---------------------------------------------------------------------------
     def __init__(self, xml_file_name):
@@ -256,6 +257,7 @@ class RequestCommand(Cmd):
         from requestcmd import RequestCmd
 
         req_config = {}
+        req_config["storage"] = RequestCommand.__storage
         req_config["current_project"] = self.__current_project
         req_config["project_config"] = self.__project_config
         req_config["request_entrys"] = self.__get_request_entrys()
