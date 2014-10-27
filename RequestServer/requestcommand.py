@@ -181,6 +181,10 @@ class RequestCommand(Cmd):
         for index, request_entry in enumerate(request_entrys):
             print index + first_index + 1, "--->", \
                     request_entry.get_name()
+        requests_total = len(self.__get_request_entrys())
+        requests_limit = requests_limit if requests_limit < requests_total \
+                else requests_total
+        print "%d/%d total" % (requests_limit, len(self.__get_request_entrys()))
 
     #---------------------------------------------------------------------------
     def __reload(self, file_name, is_loadapp):
