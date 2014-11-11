@@ -135,9 +135,9 @@ class RequestCommand(Cmd):
         if self.__request_projects is None:
             return
         for index, request_project in enumerate(self.__request_projects):
-            print "| Index:", index + 1, "| Name: \
-                    ", request_project.get_project_name(), "| Alias:" \
-                    , request_project.get_project_alias(), "|"
+            print "| Index:", index + 1, "| Name: %s | Alias: %s |\
+                    " % (request_project.get_project_name(),  \
+                    request_project.get_project_alias())
 
     #---------------------------------------------------------------------------
     def do_use(self, params):
