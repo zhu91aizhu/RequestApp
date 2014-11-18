@@ -159,3 +159,5 @@ class RequestCmd(object):
             print "limit param error.", value_error
         except urllib2.URLError as url_error:
             print "cannot access url or url error.", url_error
+        except Exception:
+            print "connect error."
