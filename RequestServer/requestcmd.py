@@ -14,7 +14,8 @@ class RequestCmd(object):
         from argparse import ArgumentParser
 
         parser = ArgumentParser()
-        parser.add_argument("-a", action="store", dest="append_params")
+        parser.add_argument("-a", "--append", action="store", \
+                dest="append_params")
         parser.add_argument("-r", "--replace", action="store", \
                 dest="replace_params")
         parser.add_argument("-d", "--data", action="store_const", \

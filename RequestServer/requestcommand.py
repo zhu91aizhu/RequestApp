@@ -142,20 +142,29 @@ class RequestCommand(Cmd):
     #---------------------------------------------------------------------------
     def do_use(self, params):
         '''选择request项目'''
-        params = params.split()
-        params_length = len(params)
-        if params_length == 0:
-            print "miss param."
-            return
-        if len(params) == 1:
-            self.__use_project_index(params[0])
-            return
-        if len(params) == 2:
-            if params[0] == "-i":
-                self.__use_project_index(params[1])
-                return
-            if params[0] == "-n":
-                self.__use_project_name(params[1])
+        from shlex import split
+        from argparse import ArgumentParser
+        
+        # 选项解析器
+        parser = ArgumentParser(description="select project with index | name.")
+        # 互斥选项组
+        project_group = parser.add_mutually_exclusive_group(required=True)
+        # 添加互斥选项
+        project_group.add_argument("-i", "--index", action="store", \
+                            dest="select_index", type=int, \
+                            help="select project with index.")
+        project_group.add_argument("-n", "--name", action="store", \
+                            dest="select_name", \
+                            help="select project with name.")
+        
+        # 解析选项
+        result = parser.parse_args(split(params))
+        
+        # 根据选项执行相应的动作
+        if result.select_index is not None:
+            self.__use_project_index(result.select_index)
+        else:
+            self.__use_project_name(result.select_name)
 
     #---------------------------------------------------------------------------
     def show_requests(self, params):
